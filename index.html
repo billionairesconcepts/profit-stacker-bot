@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profit Stacker Bot — Oliver Velez-Inspired FL Price Action for MT5</title>
+  <meta name="description" content="Profit Stacker Bot is an MT5 trading bot inspired by Oliver Velez-style public price-action education: engulfing candles, 60%+ / 80% momentum candles, rejections, moving averages, partial harvesting, and intelligent exits." />
+  <style>
+    :root {
+      --bg: #07090f;
+      --panel: #0f1522;
+      --panel-2: #141c2d;
+      --text: #f4f7fb;
+      --muted: #aab6c8;
+      --gold: #ffd34e;
+      --green: #27d17f;
+      --red: #ff5964;
+      --blue: #54b7ff;
+      --line: rgba(255,255,255,.12);
+      --shadow: 0 24px 90px rgba(0,0,0,.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(84,183,255,.20), transparent 28rem),
+        radial-gradient(circle at 80% 10%, rgba(255,211,78,.18), transparent 26rem),
+        linear-gradient(180deg, #07090f 0%, #0b0f18 45%, #07090f 100%);
+      line-height: 1.55;
+    }
+
+    a { color: inherit; }
+
+    .wrap {
+      width: min(1120px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(7,9,15,.78);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold), #ff8f1f);
+      color: #151000;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 28px rgba(255,211,78,.28);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links a { text-decoration: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 20px;
+      font-weight: 850;
+      text-decoration: none;
+      background: var(--gold);
+      color: #171100;
+      box-shadow: 0 16px 44px rgba(255,211,78,.25);
+      transition: transform .18s ease, box-shadow .18s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 20px 52px rgba(255,211,78,.33); }
+
+    .btn.alt {
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    .hero {
+      padding: 72px 0 56px;
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 42px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(255,211,78,.10);
+      border: 1px solid rgba(255,211,78,.24);
+      font-weight: 800;
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(44px, 6vw, 76px);
+      line-height: .92;
+      letter-spacing: -2.8px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 19px;
+      max-width: 640px;
+      margin: 24px 0 0;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 14px;
+    }
+
+    .terminal {
+      background: linear-gradient(180deg, rgba(20,28,45,.96), rgba(9,13,22,.96));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      min-height: 520px;
+    }
+
+    .terminal::before {
+      content: "";
+      position: absolute;
+      inset: -40% -30% auto auto;
+      width: 360px;
+      height: 360px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(39,209,127,.22), transparent 65%);
+    }
+
+    .chart {
+      position: relative;
+      height: 320px;
+      border-radius: 20px;
+      background:
+        linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px),
+        #05070b;
+      background-size: 36px 36px;
+      border: 1px solid rgba(255,255,255,.10);
+      overflow: hidden;
+    }
+
+    .fl {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--red);
+      opacity: .9;
+    }
+
+    .fl.one { top: 82px; }
+    .fl.two { top: 172px; }
+    .fl.three { top: 250px; }
+
+    .trend {
+      position: absolute;
+      height: 3px;
+      background: var(--blue);
+      opacity: .9;
+      transform-origin: left center;
+      border-radius: 999px;
+    }
+
+    .trend.a { width: 360px; left: 42px; top: 248px; transform: rotate(-24deg); }
+    .trend.b { width: 340px; left: 142px; top: 90px; transform: rotate(18deg); opacity: .55; }
+
+    .candles {
+      position: absolute;
+      left: 38px;
+      right: 38px;
+      bottom: 28px;
+      height: 250px;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .candle {
+      position: relative;
+      width: 14px;
+      border-radius: 2px;
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(39,209,127,.24);
+    }
+
+    .candle.red { background: #ff3150; box-shadow: 0 0 18px rgba(255,49,80,.20); }
+    .candle::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      width: 2px;
+      transform: translateX(-50%);
+      top: -18px;
+      bottom: -15px;
+      background: inherit;
+      opacity: .88;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,.065);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--green);
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    section { padding: 58px 0; }
+
+    .section-head {
+      max-width: 780px;
+      margin-bottom: 26px;
+    }
+
+    h2 {
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.02;
+      letter-spacing: -1.4px;
+      margin: 0 0 14px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(15,21,34,.82);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 16px 50px rgba(0,0,0,.20);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .card p, .card li {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .card ul {
+      margin: 14px 0 0;
+      padding-left: 20px;
+    }
+
+    .proof {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: 18px;
+    }
+
+    .proof-big {
+      background: linear-gradient(135deg, rgba(39,209,127,.15), rgba(84,183,255,.12));
+      border-color: rgba(39,209,127,.28);
+    }
+
+    .proof-big .money {
+      font-size: clamp(48px, 7vw, 86px);
+      line-height: .9;
+      font-weight: 950;
+      color: var(--green);
+      letter-spacing: -2.8px;
+    }
+
+    .metric-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .metric {
+      background: rgba(255,255,255,.055);
+      border-radius: 18px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .metric b { color: var(--text); font-size: 24px; display: block; }
+    .metric span { color: var(--muted); font-size: 13px; }
+
+    .funnel {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      min-height: 190px;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--gold);
+      color: #171100;
+      font-weight: 950;
+      margin-bottom: 16px;
+    }
+
+    .pricing {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .price-card {
+      background: linear-gradient(160deg, rgba(255,211,78,.18), rgba(20,28,45,.92));
+      border: 1px solid rgba(255,211,78,.28);
+      border-radius: 30px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .price {
+      font-size: 70px;
+      line-height: .9;
+      font-weight: 950;
+      letter-spacing: -3px;
+      color: var(--gold);
+      margin: 18px 0 8px;
+    }
+
+    .faq details {
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 850;
+    }
+
+    details p {
+      color: var(--muted);
+      margin: 12px 0 0;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      padding: 34px 0 50px;
+    }
+
+    .warning {
+      background: rgba(255,89,100,.09);
+      border: 1px solid rgba(255,89,100,.28);
+      color: #ffd8dc;
+      border-radius: 18px;
+      padding: 16px 18px;
+      margin-top: 18px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .proof, .pricing { grid-template-columns: 1fr; }
+      .grid-3, .funnel { grid-template-columns: repeat(2, 1fr); }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 620px) {
+      .grid-3, .funnel, .metric-list, .stats { grid-template-columns: 1fr; }
+      .hero { padding-top: 44px; }
+      .terminal { min-height: auto; }
+      .chart { height: 260px; }
+      .price { font-size: 54px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <div class="brand">
+        <div class="brand-mark">PS</div>
+        <span>Profit Stacker Bot</span>
+      </div>
+      <nav class="nav-links" aria-label="Page navigation">
+        <a href="#proof">Proof</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Subscribe</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="btn" href="#pricing">Get MT5 Access</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <div>
+        <div class="eyebrow">MT5 trading bot • Oliver Velez-inspired price action</div>
+        <h1>Inspired by Oliver’s candle logic. Built to remove human inconsistency.</h1>
+        <p>
+          Profit Stacker Bot was built after years of reading the same price-action language: engulfing candles, rejection hammers, 60%+ / 80% momentum bars, FL zones, and moving-average pressure. The mission is simple: take a method traders already recognize and let MT5 help execute it with less hesitation, emotion, and missed management.
+        </p>
+        <div class="cta-row">
+          <a class="btn" href="#pricing">Subscribe for $35/month</a>
+          <a class="btn alt" href="#proof">See recent performance</a>
+        </div>
+        <div class="note">Inspired by Oliver Velez’s publicly shared price-action education and the developer’s own trading experience. Independent product. Use demo first. No profit is guaranteed.</div>
+      </div>
+
+      <aside class="terminal" aria-label="Trading bot visual preview">
+        <div class="chart">
+          <span class="fl one"></span>
+          <span class="fl two"></span>
+          <span class="fl three"></span>
+          <span class="trend a"></span>
+          <span class="trend b"></span>
+          <div class="candles" aria-hidden="true">
+            <i class="candle red" style="height:170px"></i>
+            <i class="candle red" style="height:135px"></i>
+            <i class="candle" style="height:88px"></i>
+            <i class="candle" style="height:116px"></i>
+            <i class="candle red" style="height:72px"></i>
+            <i class="candle" style="height:134px"></i>
+            <i class="candle" style="height:168px"></i>
+            <i class="candle red" style="height:142px"></i>
+            <i class="candle red" style="height:92px"></i>
+            <i class="candle" style="height:118px"></i>
+            <i class="candle red" style="height:76px"></i>
+            <i class="candle red" style="height:58px"></i>
+            <i class="candle" style="height:64px"></i>
+            <i class="candle" style="height:94px"></i>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <strong>+$214.83</strong>
+            <span>Net trading day in latest real-account report snapshot</span>
+          </div>
+          <div class="stat">
+            <strong>74.3%</strong>
+            <span>Win rate on 3 Aug 2026 closed deals</span>
+          </div>
+          <div class="stat">
+            <strong>2.27</strong>
+            <span>Profit factor on 3 Aug 2026</span>
+          </div>
+          <div class="stat">
+            <strong>+$249.73</strong>
+            <span>XAUUSD/Gold result on 3 Aug 2026</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <section id="proof">
+      <div class="wrap proof">
+        <div class="card proof-big">
+          <div class="eyebrow">Latest report snapshot</div>
+          <div class="money">+$214.83</div>
+          <p>From a real-account report dated 3 Aug 2026, after the account had reset near $500 following a withdrawal. Report ended at $714.83 balance and equity with no floating exposure.</p>
+          <div class="warning">
+            Past performance is not a promise. These are limited sample results from one account report and should be treated as a case study, not a guarantee.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>What the recent numbers say</h2>
+          <div class="metric-list">
+            <div class="metric"><b>+$411.92</b><span>July 2026 net result</span></div>
+            <div class="metric"><b>+$214.83</b><span>3 Aug 2026 net result</span></div>
+            <div class="metric"><b>+$283.33</b><span>OPS-labelled positions on 3 Aug</span></div>
+            <div class="metric"><b>+$249.73</b><span>XAUUSD/Gold on 3 Aug</span></div>
+            <div class="metric"><b>26 / 9</b><span>Wins / losses on 3 Aug closed deals</span></div>
+            <div class="metric"><b>3.55</b><span>Lots opened/closed on 3 Aug</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Why Oliver Velez inspired this bot.</h2>
+          <p>Some traders teach indicators. Some teach discipline. Oliver’s public price-action lessons helped connect the missing piece: the same candle setups many traders see — but framed with moving averages, structure, and context.</p>
+        </div>
+        <div class="grid-3">
+          <article class="card">
+            <h3>The shared candle language</h3>
+            <p>The developer’s own trading wins were already built around engulfing candles, rejection hammers, and 60%+ candle closes into the previous candle. Oliver’s public teaching sharpened that into an 80%+ / moving-average context.</p>
+          </article>
+          <article class="card">
+            <h3>The automation mission</h3>
+            <p>Human traders hesitate, over-click, exit too early, forget partials, and miss risk warnings. Profit Stacker Bot was built to reduce that inconsistency while still letting the trader stay involved.</p>
+          </article>
+          <article class="card">
+            <h3>An open invitation</h3>
+            <p>If Oliver or his community finds value in this tool, the developer is open to collaboration, feedback, and sharing successful product upside with the educator whose public work helped inspire the build.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Built for traders who read price action, not indicator noise.</h2>
+          <p>The bot is designed around the visual language discretionary traders already use: candles, FL levels, moving averages, pressure, partials, and protection.</p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card">
+            <h3>FL zone awareness</h3>
+            <p>Uses manual FL horizontal zones as the working map: support, resistance, bridge, reclaim, breakdown, arch, and ribbon behaviour.</p>
+          </article>
+          <article class="card">
+            <h3>Candle-pattern logic</h3>
+            <p>Looks for 60%+ / 80% style price-action bars, engulfing candles, rejection bars, and high-pressure reversal behaviour near meaningful levels.</p>
+          </article>
+          <article class="card">
+            <h3>Partial harvesting</h3>
+            <p>Manual partial buttons help bank profit while leaving a runner alive. The goal is simple: take money when the market gives it.</p>
+          </article>
+          <article class="card">
+            <h3>Smart exit mode</h3>
+            <p>AUTO EXIT lets the bot close when risk appears. MANUAL EXIT lets the trader temporarily take control when conviction is stronger.</p>
+          </article>
+          <article class="card">
+            <h3>Pressure gauge</h3>
+            <p>Newer builds include a display-only bias meter using H1/M15 roadmap context plus M5/M1 “bucket about to tip” pressure.</p>
+          </article>
+          <article class="card">
+            <h3>Gold-first observation</h3>
+            <p>Recent reports show the strongest behaviour on XAUUSD/Gold. That is where the bot’s price-action style has been shining so far.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <h2>The funnel: from curiosity to subscriber.</h2>
+          <p>Use this page as the skeleton for your MT5 Marketplace listing, social profile links, and paid/free traffic.</p>
+        </div>
+        <div class="funnel">
+          <div class="step">
+            <h3>Hook</h3>
+            <p>“An Oliver Velez-inspired MT5 assistant that reads FL levels, engulfing candles, rejection pressure, moving averages, and partial-profit moments.”</p>
+          </div>
+          <div class="step">
+            <h3>Proof</h3>
+            <p>Show recent report cards: July recovery, 3 Aug gain, XAUUSD performance, and OPS-labelled trades — with clear disclaimers.</p>
+          </div>
+          <div class="step">
+            <h3>Demo</h3>
+            <p>Record live chart moments: setup appears, bot status explains, partial taken, protect clicked, runner managed.</p>
+          </div>
+          <div class="step">
+            <h3>Subscribe</h3>
+            <p>Offer monthly access at $35 with setup notes, recommended symbols, risk guidance, demo-first onboarding, and a clear invitation for Oliver’s community to test and judge the value.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="wrap pricing">
+        <div class="price-card">
+          <div class="eyebrow">Monthly access</div>
+          <h2>Start with the price-action assistant.</h2>
+          <div class="price">$35</div>
+          <p>per month subscription</p>
+          <div class="cta-row">
+            <a class="btn" href="https://www.mql5.com/en/market" target="_blank" rel="noreferrer">Subscribe on MT5 Marketplace</a>
+          </div>
+          <div class="note">Replace this button with your final MQL5 product URL when approved.</div>
+        </div>
+        <div class="card">
+          <h3>What subscribers get</h3>
+          <ul>
+            <li>MT5 trading bot focused on FL price-action setups.</li>
+            <li>Manual partial buttons: Partial 25, Partial 50, Break Even, Protect, Close.</li>
+            <li>Auto/manual exit switching for trader discretion.</li>
+            <li>Status messages showing why a setup is or is not valid.</li>
+            <li>Suggested demo-first onboarding and risk notes.</li>
+          </ul>
+          <div class="warning">
+            This is trading software, not financial advice. Subscribers must test, configure risk, and accept that losses can happen.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="faq">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Questions buyers will ask.</h2>
+        </div>
+        <details open>
+          <summary>Does Profit Stacker Bot guarantee profit?</summary>
+          <p>No. No responsible trading tool can guarantee profit. The bot is designed to assist with repeatable price-action execution and management. Market risk remains.</p>
+        </details>
+        <details>
+          <summary>Which symbol has performed best recently?</summary>
+          <p>The latest reviewed report showed the strongest recent results on XAUUSD/Gold. Other symbols may behave differently and must be tested separately.</p>
+        </details>
+        <details>
+          <summary>Is this officially connected to Oliver Velez?</summary>
+          <p>Not yet. This is an independent product inspired by Oliver Velez’s publicly shared price-action education and the developer’s own trading observations. No official endorsement is claimed unless one is granted later.</p>
+        </details>
+        <details>
+          <summary>Why mention Oliver Velez?</summary>
+          <p>Because the product was genuinely inspired by public lessons around candle strength, moving averages, and disciplined price-action context. The goal is to show respect, attract useful feedback, and give his community a tool to test the ideas in MT5.</p>
+        </details>
+        <details>
+          <summary>Should beginners use it live immediately?</summary>
+          <p>No. Demo first, small risk second, real scaling last. The bot should be understood before it is trusted with meaningful capital.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>Risk disclosure:</strong> Forex, CFDs, synthetic indices, equities, and leveraged instruments involve substantial risk and may not be suitable for every trader. Past performance, backtests, screenshots, or account-history snapshots do not guarantee future results. Use demo testing, appropriate lot sizing, and independent judgment.</p>
+      <p>© 2026 Profit Stacker Bot. Replace placeholder marketplace links and product details before publishing.</p>
+    </div>
+  </footer>
+</body>
+</html>
