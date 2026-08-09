@@ -394,6 +394,103 @@
       margin-bottom: 16px;
     }
 
+    .video-panel {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .video-box {
+      min-height: 300px;
+      border-radius: 28px;
+      border: 1px solid rgba(84,183,255,.28);
+      background:
+        radial-gradient(circle at 50% 45%, rgba(255,211,78,.22), transparent 120px),
+        linear-gradient(135deg, rgba(84,183,255,.18), rgba(15,21,34,.96));
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .video-box::before {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 22px;
+      background:
+        linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: .55;
+    }
+
+    .play {
+      position: relative;
+      z-index: 1;
+      width: 92px;
+      height: 92px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #171100;
+      display: grid;
+      place-items: center;
+      font-size: 42px;
+      font-weight: 950;
+      box-shadow: 0 24px 70px rgba(255,211,78,.34);
+    }
+
+    .offer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .offer-card {
+      position: relative;
+      background: rgba(15,21,34,.86);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 26px;
+      box-shadow: 0 16px 50px rgba(0,0,0,.22);
+    }
+
+    .offer-card.featured {
+      border-color: rgba(255,211,78,.35);
+      background: linear-gradient(160deg, rgba(255,211,78,.16), rgba(15,21,34,.94));
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 14px;
+    }
+
+    .offer-price {
+      font-size: 42px;
+      line-height: .95;
+      font-weight: 950;
+      letter-spacing: -1.5px;
+      color: var(--gold);
+      margin: 10px 0 12px;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
     .pricing {
       display: grid;
       grid-template-columns: .9fr 1.1fr;
@@ -454,13 +551,13 @@
     }
 
     @media (max-width: 900px) {
-      .hero, .proof, .pricing { grid-template-columns: 1fr; }
-      .grid-3, .funnel { grid-template-columns: repeat(2, 1fr); }
+      .hero, .proof, .pricing, .video-panel { grid-template-columns: 1fr; }
+      .grid-3, .funnel, .offer-grid { grid-template-columns: repeat(2, 1fr); }
       .nav-links { display: none; }
     }
 
     @media (max-width: 620px) {
-      .grid-3, .funnel, .metric-list, .stats { grid-template-columns: 1fr; }
+      .grid-3, .funnel, .metric-list, .stats, .offer-grid { grid-template-columns: 1fr; }
       .hero { padding-top: 44px; }
       .terminal { min-height: auto; }
       .chart { height: 260px; }
@@ -478,6 +575,7 @@
       <nav class="nav-links" aria-label="Page navigation">
         <a href="#proof">Proof</a>
         <a href="#features">Features</a>
+        <a href="#offers">Offers</a>
         <a href="#pricing">Subscribe</a>
         <a href="#faq">FAQ</a>
       </nav>
@@ -652,6 +750,81 @@
             <h3>Subscribe</h3>
             <p>Offer monthly access at $35 with setup notes, recommended symbols, risk guidance, demo-first onboarding, and a clear invitation for Oliver’s community to test and judge the value.</p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap video-panel">
+        <div class="video-box" aria-label="Future product video demo placeholder">
+          <div class="play">▶</div>
+        </div>
+        <div class="card">
+          <div class="eyebrow">Video demo concept</div>
+          <h2>From manual candle reading to automated discipline.</h2>
+          <p>The planned sales video can start with the 180-style candle idea being read manually, then switch into Profit Stacker Bot showing the same kind of logic through FL zones, moving averages, setup alerts, partials, and protection.</p>
+          <ul>
+            <li>Show the manual method first so Oliver’s audience recognizes the price-action language.</li>
+            <li>Then show the bot removing hesitation, missed partials, and late exits.</li>
+            <li>Use a simulated successful session clearly labelled as an illustration, not a profit promise.</li>
+          </ul>
+          <div class="warning">Keep all video examples honest: “simulated example” or “case-study result” must be visible when the clip is not a live audited trading record.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="offers">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Choose your pre-subscription path.</h2>
+          <p>Not every trader needs the same hand-holding. Start self-guided, buy the Best Use Plan for structured onboarding, or join the partner path if you want to build content around your results.</p>
+        </div>
+
+        <div class="offer-grid">
+          <article class="offer-card">
+            <span class="badge">Plan 1 • Self-guided</span>
+            <h3>Free Access path</h3>
+            <div class="offer-price">$0</div>
+            <p>For traders who want to go straight to the MT5 subscription and figure it out by testing carefully on demo.</p>
+            <ul>
+              <li>Direct route to the MT5 Marketplace subscription.</li>
+              <li>Best for experienced traders who already understand FL zones and candle setups.</li>
+              <li>Demo-first expectation before meaningful live risk.</li>
+            </ul>
+            <div class="cta-row"><a class="btn alt" href="#pricing">Go to subscription</a></div>
+            <p class="small-note">Former working name: Trial And Error version.</p>
+          </article>
+
+          <article class="offer-card featured">
+            <span class="badge">Plan 2 • Recommended</span>
+            <h3>Best Use Plan</h3>
+            <div class="offer-price">$159</div>
+            <p>A guided onboarding pack for traders who want to understand how to use the bot properly before scaling.</p>
+            <ul>
+              <li>FL placement guide: when and where to mark the levels.</li>
+              <li>Daily target planning, including how to think about a $100/day goal without over-risking.</li>
+              <li>Button training: Partial 25, Partial 50, Break Even, Protect, Close, Auto/Manual Exit.</li>
+              <li>Suggested assets/watchlist for testing the bot, with Gold highlighted from recent results.</li>
+              <li>Simulated successful-session walkthrough and direct support email access once connected.</li>
+            </ul>
+            <div class="cta-row"><a class="btn" href="#pricing">Connect payment link</a></div>
+            <p class="small-note">Payment/download delivery should be connected through Paystack or a similar checkout before launch.</p>
+          </article>
+
+          <article class="offer-card">
+            <span class="badge">Plan 3 • Partner path</span>
+            <h3>Partner Player</h3>
+            <div class="offer-price">$250</div>
+            <p>For traders who want the Best Use Plan plus a content/referral path around their own bot-testing journey.</p>
+            <ul>
+              <li>Includes the Best Use Plan offer.</li>
+              <li>Partner onboarding for YouTube, Facebook, TikTok, or paid-ad demonstrations.</li>
+              <li>Proposed loyalty cashback/referral credit: $5 per active monthly subscriber attributed to your content.</li>
+              <li>Deposit-protection or refund-style offers should stay “coming soon” until proper written terms exist.</li>
+            </ul>
+            <div class="cta-row"><a class="btn alt" href="#pricing">Join partner waitlist</a></div>
+            <p class="small-note">Recommended structure: partner/referral rewards first; deposit guarantees later only if legally documented.</p>
+          </article>
         </div>
       </div>
     </section>
